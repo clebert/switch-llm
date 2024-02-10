@@ -1,0 +1,46 @@
+{
+  "name": "zig-llama-cpp",
+  "private": true,
+  "license": "MIT",
+  "author": "Clemens Akens",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "build:watch": "NODE_ENV=development node build.js --watch",
+    "precompile:check": "zig build -Doptimize=ReleaseFast",
+    "compile:check": "tsc",
+    "preformat": "zig fmt *.zig src/server/*.zig",
+    "format": "prettier --write .",
+    "preformat:check": "zig fmt --check *.zig src/server/*.zig",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "start": "zig build -Doptimize=ReleaseFast run"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.1.1",
+    "monaco-editor": "^0.46.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "state-guard": "^5.1.0",
+    "wtfkit": "^6.0.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^8.57.0",
+    "@types/node": "^20.11.20",
+    "@types/react": "^18.2.58",
+    "@types/react-dom": "^18.2.19",
+    "autoprefixer": "^10.4.17",
+    "esbuild": "^0.20.1",
+    "esbuild-html-plugin": "^1.0.1",
+    "esbuild-style-plugin": "^1.6.3",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "globals": "^14.0.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^7.0.2"
+  }
+}

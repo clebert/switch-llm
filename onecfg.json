@@ -1,0 +1,59 @@
+{
+  "extends": [
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-editorconfig.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-eslint.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-git.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-github-ci.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-github-ci-node.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-github-ci-npm.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-github-ci-zig.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-ignore-dist.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-node.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-prettier.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-typescript.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-vscode.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-zig.json"
+  ],
+  "patches": {
+    ".github/workflows/ci.yml": [
+      {
+        "value": { "jobs": { "CI": { "runs-on": "macos-14" } } }
+      }
+    ],
+    ".gitignore": [
+      {
+        "value": ["/ggml-metal.metal"]
+      }
+    ],
+    ".prettierignore": [
+      {
+        "value": ["/llama.cpp"]
+      }
+    ],
+    ".prettierrc.json": [
+      {
+        "value": {
+          "plugins": ["prettier-plugin-tailwindcss"]
+        }
+      }
+    ],
+    "tsconfig.json": [
+      {
+        "value": {
+          "exclude": ["llama.cpp"],
+          "typeAcquisition": { "enable": true, "include": ["monaco-editor"] }
+        }
+      }
+    ],
+    ".vscode/settings.json": [
+      {
+        "value": { "files.exclude": { "llama.cpp": true, "src/server/static": true } }
+      }
+    ],
+    "ci.sh": [
+      {
+        "value": ["npm run build", "npm run compile:check", "npm run format:check", "npm run lint"]
+      }
+    ]
+  }
+}
