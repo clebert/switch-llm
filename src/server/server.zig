@@ -37,7 +37,7 @@ fn listen(preferred_port: u16) !std.net.Server {
 fn connectionHandler(connection: std.net.Server.Connection) void {
     defer connection.stream.close();
 
-    var read_buffer: [8000]u8 = undefined;
+    var read_buffer: [1024]u8 = undefined;
     var http_server = std.http.Server.init(connection, &read_buffer);
 
     var request = http_server.receiveHead() catch |err| {

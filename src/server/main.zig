@@ -67,14 +67,10 @@ fn sendCompletions(request: *std.http.Server.Request) !bool {
 
     defer context.deinit();
 
-    // https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
-    const char_count_per_token = 4;
-    const send_buffer = try allocator.alloc(u8, model.max_context_size * char_count_per_token);
-
-    defer allocator.free(send_buffer);
+    var send_buffer: [1024]u8 = undefined;
 
     var response = request.respondStreaming(.{
-        .send_buffer = send_buffer,
+        .send_buffer = &send_buffer,
 
         .respond_options = .{
             .keep_alive = false,
