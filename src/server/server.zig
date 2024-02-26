@@ -49,10 +49,6 @@ fn connectionHandler(connection: std.net.Server.Connection) void {
     root.requestHandler(&request) catch |err| {
         log.err("error while responding to request: {s}", .{@errorName(err)});
 
-        request.respond("", .{
-            .status = .internal_server_error,
-            .keep_alive = false,
-            .extra_headers = &.{.{ .name = "connection", .value = "close" }},
-        }) catch {};
+        request.respond("", .{ .status = .internal_server_error, .keep_alive = false }) catch {};
     };
 }

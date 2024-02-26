@@ -79,11 +79,7 @@ fn sendCompletions(request: *std.http.Server.Request) !bool {
         .respond_options = .{
             .keep_alive = false,
             .transfer_encoding = .chunked,
-
-            .extra_headers = &.{
-                .{ .name = "connection", .value = "close" },
-                .{ .name = "content-type", .value = "text/event-stream" },
-            },
+            .extra_headers = &.{.{ .name = "content-type", .value = "text/event-stream" }},
         },
     });
 
@@ -106,7 +102,6 @@ fn sendStatic(request: *std.http.Server.Request, comptime filename: []const u8) 
     } else if (!isRoute(request, .GET, "/static/" ++ filename)) return false;
 
     const extra_headers = [_]std.http.Header{
-        .{ .name = "connection", .value = "close" },
         .{ .name = "content-type", .value = comptime getContentType(filename) },
         .{ .name = "cache-control", .value = "no-store" },
     };
@@ -131,11 +126,7 @@ fn sendStatic(request: *std.http.Server.Request, comptime filename: []const u8) 
 }
 
 fn sendEmpty(request: *std.http.Server.Request, status: std.http.Status) !bool {
-    try request.respond("", .{
-        .status = status,
-        .keep_alive = false,
-        .extra_headers = &.{.{ .name = "connection", .value = "close" }},
-    });
+    try request.respond("", .{ .status = status, .keep_alive = false });
 
     return true;
 }
