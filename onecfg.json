@@ -32,6 +32,11 @@
         }
       }
     ],
+    ".vscode/extensions.json": [
+      {
+        "value": { "recommendations": ["vknabel.vscode-apple-swift-format"] }
+      }
+    ],
     ".vscode/settings.json": [
       {
         "value": { "files.exclude": { "llama.cpp": true, "src/server/static": true } }
