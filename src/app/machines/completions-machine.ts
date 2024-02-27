@@ -119,14 +119,17 @@ async function handleFetching(): Promise<void> {
     const completions = completionsMachine.get();
 
     if (completions === fetchingCompletions) {
-      completions.actions.idle({
-        error: completions.value.abortController.signal.aborted ? undefined : error,
-      });
+      const { abortController } = completions.value;
+      const { signal } = abortController;
+
+      completions.actions.idle({ error: signal.aborted ? undefined : error });
+      abortController.abort();
     } else if (completions === streamingCompletions) {
-      completions.actions.idle({
-        content: completions.value.content,
-        error: completions.value.abortController.signal.aborted ? undefined : error,
-      });
+      const { abortController, content } = completions.value;
+      const { signal } = abortController;
+
+      completions.actions.idle({ content, error: signal.aborted ? undefined : error });
+      abortController.abort();
     }
   }
 }
