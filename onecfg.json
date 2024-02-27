@@ -37,14 +37,6 @@
         }
       }
     ],
-    "tsconfig.json": [
-      {
-        "value": {
-          "exclude": ["llama.cpp"],
-          "typeAcquisition": { "enable": true, "include": ["monaco-editor"] }
-        }
-      }
-    ],
     ".vscode/settings.json": [
       {
         "value": { "files.exclude": { "llama.cpp": true, "src/server/static": true } }
@@ -53,6 +45,14 @@
     "ci.sh": [
       {
         "value": ["npm run build", "npm run compile:check", "npm run format:check", "npm run lint"]
+      }
+    ],
+    "tsconfig.json": [
+      {
+        "value": {
+          "exclude": ["llama.cpp"],
+          "typeAcquisition": { "enable": true, "include": ["monaco-editor"] }
+        }
       }
     ]
   }
