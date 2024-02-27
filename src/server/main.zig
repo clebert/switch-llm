@@ -2,19 +2,73 @@ const builtin = @import("builtin");
 const std = @import("std");
 const llama = @import("llama.zig");
 const Prompt = @import("prompt.zig");
-const server = @import("server.zig");
 
 pub const std_options = std.Options{ .log_level = std.log.Level.info };
 
-pub fn main() !void {
+var tcp_server: std.net.Server = undefined;
+
+export fn start_server() c_int {
     llama.initBackend();
 
-    defer llama.deinitBackend();
+    // TODO: A dynamically assigned port number (0) does not work due to local storage restrictions.
+    const address = std.net.Address.parseIp("127.0.0.1", 55554) catch |err| {
+        std.log.err("{s}", .{@errorName(err)});
 
-    try server.start(3000);
+        return 1;
+    };
+
+    tcp_server = address.listen(.{ .reuse_address = true }) catch |err| {
+        std.log.err("{s}", .{@errorName(err)});
+
+        return 1;
+    };
+
+    const thread = std.Thread.spawn(.{}, startServer, .{}) catch |err| {
+        std.log.err("{s}", .{@errorName(err)});
+
+        return 1;
+    };
+
+    thread.detach();
+
+    return 0;
 }
 
-pub fn requestHandler(request: *std.http.Server.Request) !void {
+export fn get_port() c_int {
+    return tcp_server.listen_address.getPort();
+}
+
+fn startServer() void {
+    while (true) {
+        const connection = tcp_server.accept() catch |err| @panic(@errorName(err));
+
+        const thread = std.Thread.spawn(.{}, connectionHandler, .{connection}) catch |err|
+            @panic(@errorName(err));
+
+        thread.detach();
+    }
+}
+
+fn connectionHandler(connection: std.net.Server.Connection) void {
+    defer connection.stream.close();
+
+    var read_buffer: [1024]u8 = undefined;
+    var http_server = std.http.Server.init(connection, &read_buffer);
+
+    var request = http_server.receiveHead() catch |err| {
+        std.log.err("{s}", .{@errorName(err)});
+
+        return;
+    };
+
+    requestHandler(&request) catch |err| {
+        std.log.err("{s}", .{@errorName(err)});
+
+        _ = sendEmpty(&request, .internal_server_error) catch {};
+    };
+}
+
+fn requestHandler(request: *std.http.Server.Request) !void {
     if (try sendCompletions(request)) return;
     if (try sendStatic(request, "app.css")) return;
     if (try sendStatic(request, "app.js")) return;

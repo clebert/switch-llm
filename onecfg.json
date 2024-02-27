@@ -20,11 +20,6 @@
         "value": { "jobs": { "CI": { "runs-on": "macos-14" } } }
       }
     ],
-    ".gitignore": [
-      {
-        "value": ["/ggml-metal.metal"]
-      }
-    ],
     ".prettierignore": [
       {
         "value": ["/llama.cpp"]

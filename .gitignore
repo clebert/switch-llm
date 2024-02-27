@@ -2,4 +2,3 @@
 /node_modules
 /zig-cache
 /zig-out
-/ggml-metal.metal

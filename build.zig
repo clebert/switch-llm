@@ -1,92 +1,85 @@
 const std = @import("std");
 
-const allocator = std.heap.page_allocator;
-
 pub fn build(b: *std.Build) !void {
-    const target = b.standardTargetOptions(.{});
+    const target = b.resolveTargetQuery(
+        try std.Target.Query.parse(.{ .arch_os_abi = "aarch64-macos.14.0.0" }),
+    );
+
     const optimize = b.standardOptimizeOption(.{});
 
-    if (target.result.os.tag != .macos) {
-        @panic("Only macos is supported.");
-    }
-
-    const server_exe = b.addExecutable(.{
+    const server = b.addStaticLibrary(.{
         .name = "server",
         .root_source_file = .{ .path = "src/server/main.zig" },
         .target = target,
         .optimize = optimize,
-        .strip = optimize != .Debug,
+        .strip = true,
     });
 
-    try addLlama(server_exe);
+    server.bundle_compiler_rt = true;
 
-    const server_install_artifact = b.addInstallArtifact(server_exe, .{});
+    const sdk = std.zig.system.darwin.getSdk(b.allocator, target.result).?;
 
-    b.getInstallStep().dependOn(&server_install_artifact.step);
+    server.addFrameworkPath(.{ .path = b.fmt("{s}/System/Library/Frameworks", .{sdk}) });
+    server.addSystemIncludePath(.{ .path = b.fmt("{s}/usr/include", .{sdk}) });
+    server.addIncludePath(.{ .path = "llama.cpp" });
+    server.linkLibCpp();
 
-    // TODO: https://github.com/ggerganov/llama.cpp/issues/5376
-    const ggml_metal_install_file = b.addInstallFileWithDir(
-        .{ .path = "llama.cpp/ggml-metal.metal" },
-        .bin,
-        "../../ggml-metal.metal",
-    );
-
-    b.getInstallStep().dependOn(&ggml_metal_install_file.step);
-
-    const run_step = b.step("run", "Run the server");
-
-    run_step.dependOn(b.getInstallStep());
-
-    const run_artifact = b.addRunArtifact(server_exe);
-
-    run_step.dependOn(&run_artifact.step);
-}
-
-fn addLlama(compile: *std.Build.Step.Compile) !void {
-    const optimize = compile.root_module.optimize.?;
-
-    compile.addIncludePath(.{ .path = "llama.cpp" });
-
-    const c_flags = try createFlags(optimize, false);
-
-    defer allocator.free(c_flags);
-
-    compile.addCSourceFile(.{ .file = .{ .path = "llama.cpp/ggml.c" }, .flags = c_flags });
-    compile.addCSourceFile(.{ .file = .{ .path = "llama.cpp/ggml-alloc.c" }, .flags = c_flags });
-    compile.addCSourceFile(.{ .file = .{ .path = "llama.cpp/ggml-backend.c" }, .flags = c_flags });
-    compile.addCSourceFile(.{ .file = .{ .path = "llama.cpp/ggml-metal.m" }, .flags = c_flags });
-    compile.addCSourceFile(.{ .file = .{ .path = "llama.cpp/ggml-quants.c" }, .flags = c_flags });
-
-    const cpp_flags = try createFlags(optimize, true);
-
-    defer allocator.free(cpp_flags);
-
-    compile.addCSourceFile(.{ .file = .{ .path = "llama.cpp/llama.cpp" }, .flags = cpp_flags });
-
-    compile.linkFramework("Accelerate");
-    compile.linkFramework("Foundation");
-    compile.linkFramework("Metal");
-    compile.linkFramework("MetalKit");
-    compile.linkLibC();
-    compile.linkLibCpp();
-}
-
-fn createFlags(optimize: std.builtin.OptimizeMode, cpp: bool) ![][]const u8 {
-    var flags = std.ArrayList([]const u8).init(allocator);
-
-    errdefer flags.deinit();
-
-    try flags.appendSlice(&.{
-        if (cpp) "-std=c++11" else "-std=c11",
+    const shared_flags = .{
         "-DGGML_USE_ACCELERATE",
         "-DACCELERATE_NEW_LAPACK",
         "-DACCELERATE_LAPACK_ILP64",
         "-DGGML_USE_METAL",
-    });
+    };
 
-    if (optimize != .Debug) {
-        try flags.appendSlice(&.{ "-DNDEBUG", "-DGGML_METAL_NDEBUG" });
+    const c_flags = .{"-std=c11"} ++ shared_flags;
+
+    const c_source_paths: []const []const u8 = &.{
+        "ggml.c",
+        "ggml-alloc.c",
+        "ggml-backend.c",
+        "ggml-metal.m",
+        "ggml-quants.c",
+    };
+
+    for (c_source_paths) |path| {
+        server.addCSourceFile(.{
+            .file = .{ .path = b.pathJoin(&.{ "llama.cpp", path }) },
+            .flags = &c_flags,
+        });
     }
 
-    return flags.toOwnedSlice();
+    const cpp_flags = .{"-std=c++11"} ++ shared_flags;
+
+    server.addCSourceFile(.{ .file = .{ .path = "llama.cpp/llama.cpp" }, .flags = &cpp_flags });
+
+    // TODO: https://github.com/ggerganov/llama.cpp/issues/5376
+    b.installBinFile("llama.cpp/ggml-metal.metal", "ggml-metal.metal");
+
+    const swiftc_command = b.addSystemCommand(&.{
+        "swiftc",
+        "-O",
+        "-lc++",
+        "-framework",
+        "Accelerate",
+        "-import-objc-header",
+        "src/server.h",
+        "-target",
+
+        b.fmt("{s}-apple-macosx{}", .{
+            @tagName(target.result.cpu.arch),
+            target.result.os.version_range.semver.min,
+        }),
+    });
+
+    swiftc_command.addArg("-o");
+
+    const output_file_path = swiftc_command.addOutputFileArg("app");
+
+    swiftc_command.addArg("-Xlinker");
+    swiftc_command.addFileArg(server.getEmittedBin());
+    swiftc_command.addFileArg(.{ .path = "src/app.swift" });
+    swiftc_command.addFileArg(.{ .path = "src/web-view.swift" });
+    swiftc_command.step.dependOn(&server.step);
+
+    b.getInstallStep().dependOn(&b.addInstallBinFile(output_file_path, "app").step);
 }

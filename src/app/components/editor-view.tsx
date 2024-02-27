@@ -43,10 +43,9 @@ export const EditorView = React.forwardRef(
       monacoEditor.onDidChangeModelContent(() => resizeEditor(monacoEditor));
 
       const abortController = new AbortController();
+      const { signal } = abortController;
 
-      window.addEventListener(`resize`, () => resizeEditor(monacoEditor), {
-        signal: abortController.signal,
-      });
+      window.addEventListener(`resize`, () => resizeEditor(monacoEditor), { signal });
 
       return () => {
         abortController.abort();

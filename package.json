@@ -6,15 +6,16 @@
   "type": "module",
   "scripts": {
     "build": "node build.js",
+    "postbuild": "zig build -Doptimize=ReleaseFast",
+    "prebuild:watch": "zig build -Doptimize=Debug",
     "build:watch": "NODE_ENV=development node build.js --watch",
-    "precompile:check": "zig build -Doptimize=ReleaseFast",
     "compile:check": "tsc",
     "preformat": "zig fmt *.zig src/server/*.zig",
     "format": "prettier --write .",
     "preformat:check": "zig fmt --check *.zig src/server/*.zig",
     "format:check": "prettier --check .",
     "lint": "eslint .",
-    "start": "zig build -Doptimize=ReleaseFast run"
+    "start": "./zig-out/bin/app"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
