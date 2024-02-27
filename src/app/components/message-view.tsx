@@ -3,10 +3,10 @@ import { ArrowPathIcon, PaperAirplaneIcon, TrashIcon } from '@heroicons/react/24
 import { Button, Container, Icon } from 'wtfkit';
 import type { ChatMessage, PromptedChat, RespondedChat } from '../machines/chat-machine.js';
 import { deleteMessage, getLastMessage, updateMessage } from '../machines/chat-machine.js';
+import { ApiContext } from '../contexts/api-context.js';
 import type { Editor } from './editor-view.js';
 import { EditorView } from './editor-view.js';
 import { MessageIcon } from './message-icon.js';
-import { useApi } from '../hooks/use-api.js';
 import { useCompletions } from '../hooks/use-completions.js';
 
 export interface MessageViewProps {
@@ -34,7 +34,7 @@ export function MessageView({ chat, message }: MessageViewProps): JSX.Element {
     [chat, message, completions],
   );
 
-  const api = useApi();
+  const api = React.useContext(ApiContext);
 
   const sendPromptCallback = React.useMemo(
     () =>

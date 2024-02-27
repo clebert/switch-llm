@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Completion, IdleCompletions } from '../machines/completions-machine.js';
-import type { Api } from './use-api.js';
+import type { Api } from '../contexts/api-context.js';
 import type { PromptedChat } from '../machines/chat-machine.js';
 import type { SamplingParams } from './use-sampling-params.js';
 import { useModelPath } from './use-model-path.js';

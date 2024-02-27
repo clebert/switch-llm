@@ -2,11 +2,11 @@ import * as React from 'react';
 import { Button, Container, Icon, StandaloneIcon } from 'wtfkit';
 import type { EmptyChat, RespondedChat } from '../machines/chat-machine.js';
 import { ExclamationTriangleIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import { ApiContext } from '../contexts/api-context.js';
 import type { Editor } from './editor-view.js';
 import { EditorView } from './editor-view.js';
 import type { IdleCompletions } from '../machines/completions-machine.js';
 import { appendUserMessage } from '../machines/chat-machine.js';
-import { useApi } from '../hooks/use-api.js';
 
 export interface PromptViewProps {
   readonly chat: EmptyChat | RespondedChat;
@@ -20,7 +20,7 @@ export function PromptView({ chat, completions }: PromptViewProps): JSX.Element 
 
   const [editor, setEditor] = React.useState<Editor | null>(null);
   const content = React.useDeferredValue(editor?.content);
-  const api = useApi();
+  const api = React.useContext(ApiContext);
 
   const sendPromptCallback = React.useMemo(
     () =>
