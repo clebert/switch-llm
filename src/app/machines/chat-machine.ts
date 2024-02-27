@@ -40,9 +40,9 @@ export const chatMachine = createMachine({
   },
 
   transitionsMap: {
-    empty: { toPrompted: `prompted`, toResponded: `responded` },
-    prompted: { toEmpty: `empty`, toPrompted: `prompted`, toResponded: `responded` },
-    responded: { toEmpty: `empty`, toPrompted: `prompted`, toResponded: `responded` },
+    empty: { prompt: `prompted`, respond: `responded` },
+    prompted: { empty: `empty`, prompt: `prompted`, respond: `responded` },
+    responded: { empty: `empty`, prompt: `prompted`, respond: `responded` },
   },
 });
 
@@ -59,13 +59,13 @@ export function appendAssistantMessage(chat: PromptedChat, content: string): Res
     content,
   };
 
-  return chat.actions.toResponded({ messages: [...chat.value.messages, message] });
+  return chat.actions.respond({ messages: [...chat.value.messages, message] });
 }
 
 export function appendUserMessage(chat: EmptyChat | RespondedChat, content: string): PromptedChat {
   const message: ChatMessage<'user'> = { uuid: crypto.randomUUID(), role: `user`, content };
 
-  return chat.actions.toPrompted({
+  return chat.actions.prompt({
     messages: chat.state === `empty` ? [message] : [...chat.value.messages, message],
   });
 }
@@ -84,10 +84,10 @@ export function deleteMessage<TChat extends PromptedChat | RespondedChat>(
 
   return (
     endsWithAssistantMessage(messages)
-      ? chat.actions.toResponded({ messages })
+      ? chat.actions.respond({ messages })
       : endsWithUserMessage(messages)
-        ? chat.actions.toPrompted({ messages })
-        : chat.actions.toEmpty()
+        ? chat.actions.prompt({ messages })
+        : chat.actions.empty()
   ) as any;
 }
 
@@ -120,8 +120,8 @@ export function updateMessage<TChat extends PromptedChat | RespondedChat>(
 
   return (
     chat.state === `prompted`
-      ? chat.actions.toPrompted({ messages })
-      : chat.actions.toResponded({ messages })
+      ? chat.actions.prompt({ messages })
+      : chat.actions.respond({ messages })
   ) as any;
 }
 
@@ -152,9 +152,9 @@ const messagesStorageItem = createJsonStorageItem<
 
   if (messages) {
     if (endsWithAssistantMessage(messages)) {
-      chatMachine.assert(`empty`).actions.toResponded({ messages });
+      chatMachine.assert(`empty`).actions.respond({ messages });
     } else if (endsWithUserMessage(messages)) {
-      chatMachine.assert(`empty`).actions.toPrompted({ messages });
+      chatMachine.assert(`empty`).actions.prompt({ messages });
     }
   }
 }

@@ -55,9 +55,9 @@ export const completionsMachine = createMachine({
   },
 
   transitionsMap: {
-    idle: { toIdle: `idle`, toFetching: `fetching` },
-    fetching: { toIdle: `idle`, toStreaming: `streaming` },
-    streaming: { toIdle: `idle`, toStreaming: `streaming` },
+    idle: { fetch: `fetching` },
+    fetching: { idle: `idle`, stream: `streaming` },
+    streaming: { idle: `idle`, stream: `streaming` },
   },
 });
 
@@ -104,11 +104,11 @@ async function handleFetching(): Promise<void> {
       const result = parseCompletion(data);
 
       if (`contentDelta` in result) {
-        streamingCompletions = completions.actions.toStreaming(result.contentDelta);
+        streamingCompletions = completions.actions.stream(result.contentDelta);
       } else if (completions.state === `fetching`) {
-        completions.actions.toIdle(result);
+        completions.actions.idle(result);
       } else {
-        completions.actions.toIdle({ ...result, content: completions.value.content });
+        completions.actions.idle({ ...result, content: completions.value.content });
       }
     }
 
@@ -119,11 +119,11 @@ async function handleFetching(): Promise<void> {
     const completions = completionsMachine.get();
 
     if (completions === fetchingCompletions) {
-      completions.actions.toIdle({
+      completions.actions.idle({
         error: completions.value.abortController.signal.aborted ? undefined : error,
       });
     } else if (completions === streamingCompletions) {
-      completions.actions.toIdle({
+      completions.actions.idle({
         content: completions.value.content,
         error: completions.value.abortController.signal.aborted ? undefined : error,
       });

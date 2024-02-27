@@ -29,7 +29,7 @@ function createSendPrompt(
     const messages = chat.value.messages.map(({ role, content }) => ({ role, content }));
     const sampling_params = { temperature, top_p: topP };
 
-    completions.actions.toFetching({
+    completions.actions.fetch({
       abortController: new AbortController(),
 
       fetchCompletions: async (signal) =>
