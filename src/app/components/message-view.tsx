@@ -24,7 +24,7 @@ export function MessageView({ chat, message }: MessageViewProps): JSX.Element {
     }
   }, [chat, message, content]);
 
-  const completions = useCompletions();
+  const completions = useCompletions(`idle`);
 
   const deleteUserMessageCallback = React.useMemo(
     () =>
