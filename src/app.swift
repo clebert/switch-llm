@@ -17,9 +17,6 @@ struct Main: App {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
   func applicationWillFinishLaunching(_ notification: Notification) {
-    NSApp.setActivationPolicy(.regular)
-    NSApp.activate(ignoringOtherApps: true)
-
     if start_server() != 0 {
       exit(1)
     }
@@ -35,11 +32,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     signal(SIGPIPE) { _ in }
   }
 
+  func applicationDidFinishLaunching(_ notification: Notification) {
+    NSApp.setActivationPolicy(.regular)
+    NSApp.activate(ignoringOtherApps: true)
+  }
+
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
     true
   }
-
-  func applicationWillTerminate(_ notification: Notification) {}
 }
 
 final class AppState: ObservableObject {
