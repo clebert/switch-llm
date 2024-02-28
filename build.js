@@ -49,6 +49,7 @@ const buildOptions = {
       createHeadElements: (outputUrls) => [
         `<meta charset="utf-8" />`,
         `<meta name="viewport" content="width=device-width, initial-scale=1" />`,
+        `<script>window.__debug = ${dev}</script>`,
 
         ...outputUrls
           .filter((url) => url.endsWith(`.css`))

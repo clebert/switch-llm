@@ -110,22 +110,18 @@ export const EditorView = React.forwardRef(
 );
 
 export class Editor {
-  readonly #monacoEditor: Monaco.editor.IStandaloneCodeEditor;
-
-  constructor(monacoEditor: Monaco.editor.IStandaloneCodeEditor) {
-    this.#monacoEditor = monacoEditor;
-  }
+  constructor(readonly monacoEditor: Monaco.editor.IStandaloneCodeEditor) {}
 
   get content(): string {
-    return this.#monacoEditor.getModel()?.getValue() ?? ``;
+    return this.monacoEditor.getModel()?.getValue() ?? ``;
   }
 
   set(content: string): void {
-    this.#monacoEditor.getModel()?.setValue(content);
+    this.monacoEditor.getModel()?.setValue(content);
   }
 
   append(contentDelta: string): void {
-    const model = this.#monacoEditor.getModel();
+    const model = this.monacoEditor.getModel();
 
     if (!model) {
       return;
@@ -133,8 +129,8 @@ export class Editor {
 
     const lastLineNumber = model.getLineCount();
     const lastLineColumn = model.getLineMaxColumn(lastLineNumber);
-    const initialIsCursorInViewport = isCursorInViewport(this.#monacoEditor);
-    const initialContentHeight = this.#monacoEditor.getContentHeight();
+    const initialIsCursorInViewport = isCursorInViewport(this.monacoEditor);
+    const initialContentHeight = this.monacoEditor.getContentHeight();
 
     model.pushEditOperations(
       null,
@@ -155,9 +151,9 @@ export class Editor {
 
     if (
       initialIsCursorInViewport &&
-      this.#monacoEditor.getContentHeight() !== initialContentHeight
+      this.monacoEditor.getContentHeight() !== initialContentHeight
     ) {
-      scrollToCursor(this.#monacoEditor);
+      scrollToCursor(this.monacoEditor);
     }
   }
 }

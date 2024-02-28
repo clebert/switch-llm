@@ -30,28 +30,50 @@ export function PromptView({ chat, completions }: PromptViewProps): JSX.Element 
     [chat, completions, content, api],
   );
 
+  const reload = React.useCallback(() => window.location.reload(), []);
+
+  const translate = React.useCallback(() => {
+    editor?.set(``);
+    editor?.append(`Please translate the following text into english: `);
+    editor?.monacoEditor.focus();
+  }, [editor]);
+
   return React.useMemo(
     () => (
-      <Container>
-        <Container col grow>
-          <EditorView ref={setEditor} autoFocus />
+      <>
+        <Container>
+          <Container col grow>
+            <EditorView ref={setEditor} autoFocus />
+          </Container>
+
+          <Container col>
+            <Button title="Send prompt" inverted onClick={sendPromptCallback}>
+              <Icon type={PaperAirplaneIcon} standalone />
+            </Button>
+
+            {completions.value.error !== undefined && (
+              <StandaloneIcon type={ExclamationTriangleIcon} title={`Error`} />
+            )}
+
+            {completions.value.finishReason === `context_size` && (
+              <StandaloneIcon type={ExclamationTriangleIcon} title={`Context size`} />
+            )}
+          </Container>
         </Container>
 
-        <Container col>
-          <Button title="Send prompt" inverted onClick={sendPromptCallback}>
-            <Icon type={PaperAirplaneIcon} standalone />
+        <Container>
+          {window.__debug && (
+            <Button title="Reload" onClick={reload}>
+              Reload
+            </Button>
+          )}
+
+          <Button title="Translate" onClick={translate}>
+            Translate
           </Button>
-
-          {completions.value.error !== undefined && (
-            <StandaloneIcon type={ExclamationTriangleIcon} title={`Error`} />
-          )}
-
-          {completions.value.finishReason === `context_size` && (
-            <StandaloneIcon type={ExclamationTriangleIcon} title={`Context size`} />
-          )}
         </Container>
-      </Container>
+      </>
     ),
-    [completions, sendPromptCallback],
+    [completions, sendPromptCallback, reload, translate],
   );
 }
