@@ -32,8 +32,8 @@ export function PromptView({ chat, completions }: PromptViewProps): JSX.Element 
 
   const translate = React.useCallback(() => {
     editor?.set(``);
-    editor?.append(`Please translate the following text into english: `);
-    editor?.monacoEditor.focus();
+    editor?.append(`Please translate the following text into english: ""`);
+    editor?.focus(-1);
   }, [editor]);
 
   return React.useMemo(

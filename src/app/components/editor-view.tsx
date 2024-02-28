@@ -156,6 +156,19 @@ export class Editor {
       scrollToCursor(this.monacoEditor);
     }
   }
+
+  focus(columnDelta?: number): void {
+    if (columnDelta) {
+      const position = this.monacoEditor.getPosition()!;
+
+      this.monacoEditor.setPosition({
+        ...position,
+        column: Math.max(1, position.column + columnDelta),
+      });
+    }
+
+    this.monacoEditor.focus();
+  }
 }
 
 function resizeEditor(monacoEditor: Monaco.editor.IStandaloneCodeEditor): void {
