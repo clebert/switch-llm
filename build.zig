@@ -71,6 +71,10 @@ pub fn build(b: *std.Build) !void {
         }),
     });
 
+    if (optimize == .Debug) {
+        swiftc_command.addArgs(&.{ "-D", "DEBUG" });
+    }
+
     swiftc_command.addArg("-o");
 
     const output_file_path = swiftc_command.addOutputFileArg("app");

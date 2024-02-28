@@ -5,7 +5,13 @@ struct WebView: NSViewRepresentable {
   let url: String
 
   func makeNSView(context: Context) -> WKWebView {
-    return WKWebView()
+    let configuration = WKWebViewConfiguration()
+
+    #if DEBUG
+      configuration.preferences.setValue(true, forKey: "developerExtrasEnabled")
+    #endif
+
+    return WKWebView(frame: .zero, configuration: configuration)
   }
 
   func updateNSView(_ nsView: WKWebView, context: NSViewRepresentableContext<WebView>) {

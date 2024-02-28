@@ -30,8 +30,6 @@ export function PromptView({ chat, completions }: PromptViewProps): JSX.Element 
     [chat, completions, content, api],
   );
 
-  const reload = React.useCallback(() => window.location.reload(), []);
-
   const translate = React.useCallback(() => {
     editor?.set(``);
     editor?.append(`Please translate the following text into english: `);
@@ -62,18 +60,12 @@ export function PromptView({ chat, completions }: PromptViewProps): JSX.Element 
         </Container>
 
         <Container>
-          {window.__debug && (
-            <Button title="Reload" onClick={reload}>
-              Reload
-            </Button>
-          )}
-
           <Button title="Translate" onClick={translate}>
             Translate
           </Button>
         </Container>
       </>
     ),
-    [completions, sendPromptCallback, reload, translate],
+    [completions, sendPromptCallback, translate],
   );
 }
