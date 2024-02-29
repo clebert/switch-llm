@@ -15,7 +15,7 @@
     "preformat:check": "zig fmt --check *.zig src/server/*.zig",
     "format:check": "prettier --check .",
     "lint": "eslint .",
-    "start": "./zig-out/bin/app"
+    "start": "./zig-out/bin/switch-llm"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",

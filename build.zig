@@ -77,7 +77,7 @@ pub fn build(b: *std.Build) !void {
 
     swiftc_command.addArg("-o");
 
-    const output_file_path = swiftc_command.addOutputFileArg("app");
+    const output_file_path = swiftc_command.addOutputFileArg("switch-llm");
 
     swiftc_command.addArg("-Xlinker");
     swiftc_command.addFileArg(server.getEmittedBin());
@@ -85,5 +85,5 @@ pub fn build(b: *std.Build) !void {
     swiftc_command.addFileArg(.{ .path = "src/web-view.swift" });
     swiftc_command.step.dependOn(&server.step);
 
-    b.getInstallStep().dependOn(&b.addInstallBinFile(output_file_path, "app").step);
+    b.getInstallStep().dependOn(&b.addInstallBinFile(output_file_path, "switch-llm").step);
 }
