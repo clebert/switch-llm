@@ -13,6 +13,23 @@ export interface PromptViewProps {
   readonly completions: IdleCompletions;
 }
 
+const prompts = {
+  correct: `Review the text below for spelling, grammar, and punctuation errors. \
+Correct them to improve readability while keeping the original meaning intact:\n\n`,
+
+  enhance: `Improve clarity, tone, and style of the text below. \
+Choose words that elevate the message without altering the essence:\n\n`,
+
+  simplify: `Rewrite the text below in simple language for easier understanding by children or non-native speakers. \
+Keep essential facts and insights clear and intact:\n\n`,
+
+  summarize: `Summarize the text below, highlighting key points and conclusions. \
+The summary should accurately reflect the original text's core message:\n\n`,
+
+  translate: `Translate the text below into English, \
+capturing both the explicit content and subtle nuances accurately:\n\n`,
+};
+
 export function PromptView({ chat, completions }: PromptViewProps): JSX.Element {
   React.useEffect(() => {
     window.scrollTo(0, document.documentElement.scrollHeight);
@@ -30,10 +47,34 @@ export function PromptView({ chat, completions }: PromptViewProps): JSX.Element 
     [chat, completions, content, api],
   );
 
+  const correct = React.useCallback(() => {
+    editor?.set(``);
+    editor?.append(prompts.correct);
+    editor?.focus();
+  }, [editor]);
+
+  const enhance = React.useCallback(() => {
+    editor?.set(``);
+    editor?.append(prompts.enhance);
+    editor?.focus();
+  }, [editor]);
+
+  const simplify = React.useCallback(() => {
+    editor?.set(``);
+    editor?.append(prompts.simplify);
+    editor?.focus();
+  }, [editor]);
+
+  const summarize = React.useCallback(() => {
+    editor?.set(``);
+    editor?.append(prompts.summarize);
+    editor?.focus();
+  }, [editor]);
+
   const translate = React.useCallback(() => {
     editor?.set(``);
-    editor?.append(`Please translate the following text into english: ""`);
-    editor?.focus(-1);
+    editor?.append(prompts.translate);
+    editor?.focus();
   }, [editor]);
 
   return React.useMemo(
@@ -60,12 +101,28 @@ export function PromptView({ chat, completions }: PromptViewProps): JSX.Element 
         </Container>
 
         <Container>
+          <Button title="Correct" onClick={correct}>
+            Correct
+          </Button>
+
+          <Button title="Enhance" onClick={enhance}>
+            Enhance
+          </Button>
+
+          <Button title="Simplify" onClick={simplify}>
+            Simplify
+          </Button>
+
+          <Button title="Summarize" onClick={summarize}>
+            Summarize
+          </Button>
+
           <Button title="Translate" onClick={translate}>
             Translate
           </Button>
         </Container>
       </>
     ),
-    [completions, sendPromptCallback, translate],
+    [completions, sendPromptCallback, correct, enhance, simplify, summarize, translate],
   );
 }
