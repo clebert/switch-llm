@@ -47,6 +47,15 @@ export function PromptView({ chat, completions }: PromptViewProps): JSX.Element 
     [chat, completions, content, api],
   );
 
+  const clear = React.useCallback(() => {
+    if (chat.state === `responded`) {
+      chat.actions.empty();
+    }
+
+    editor?.set(``);
+    editor?.focus();
+  }, [chat, editor]);
+
   const correct = React.useCallback(() => {
     editor?.set(``);
     editor?.append(prompts.correct);
@@ -101,6 +110,10 @@ export function PromptView({ chat, completions }: PromptViewProps): JSX.Element 
         </Container>
 
         <Container>
+          <Button title="Clear" onClick={clear}>
+            Clear
+          </Button>
+
           <Button title="Correct" onClick={correct}>
             Correct
           </Button>
@@ -123,6 +136,6 @@ export function PromptView({ chat, completions }: PromptViewProps): JSX.Element 
         </Container>
       </>
     ),
-    [completions, sendPromptCallback, correct, enhance, simplify, summarize, translate],
+    [completions, sendPromptCallback, clear, correct, enhance, simplify, summarize, translate],
   );
 }
