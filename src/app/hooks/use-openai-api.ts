@@ -62,8 +62,6 @@ const dataSchema = z.object({
 });
 
 function parseCompletion(data: string): Completion {
-  console.debug(data);
-
   const [choice] = dataSchema.parse(JSON.parse(data)).choices;
 
   return choice.finish_reason

@@ -50,8 +50,6 @@ const dataSchema = z
   .or(z.object({ finish_reason: z.literal(`context_size`).or(z.literal(`stop`)) }));
 
 function parseCompletion(data: string): Completion {
-  console.debug(data);
-
   const result = dataSchema.parse(JSON.parse(data));
 
   return `content_delta` in result
