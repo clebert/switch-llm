@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { ColorSchemeButton, Container, Page, Styles, Topbar } from 'wtfkit';
+import { Button, ColorSchemeButton, Container, Icon, Page, Styles, Topbar } from 'wtfkit';
 import { ApiContext } from '../contexts/api-context.js';
 import { ApiKeyView } from './api-key-view.js';
 import { ApiTypeButton } from './api-type-button.js';
 import { CompletionsView } from './completions-view.js';
+import { FolderOpenIcon } from '@heroicons/react/24/outline';
 import { MessageView } from './message-view.js';
 import { ModelPathView } from './model-path-view.js';
 import { OpenaiModelButton } from './openai-model-button.js';
@@ -25,6 +26,11 @@ export function App(): JSX.Element {
   const localApi = useLocalApi();
   const openaiApi = useOpenaiApi();
 
+  const selectModel = React.useCallback(
+    () => window.webkit.messageHandlers.selectModel.postMessage(null),
+    [],
+  );
+
   return (
     <ApiContext.Provider value={apiType === `local` ? localApi : openaiApi}>
       <Page styles={styles}>
@@ -38,7 +44,17 @@ export function App(): JSX.Element {
             <Container grow>
               <TemperatureButton />
               <TopPButton />
-              {apiType === `local` ? <ModelPathView /> : <ApiKeyView />}
+              {apiType === `local` ? (
+                <>
+                  <ModelPathView />
+
+                  <Button title="Select model" onClick={selectModel}>
+                    <Icon type={FolderOpenIcon} standalone />
+                  </Button>
+                </>
+              ) : (
+                <ApiKeyView />
+              )}
             </Container>
 
             <Container>

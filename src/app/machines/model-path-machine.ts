@@ -14,3 +14,7 @@ export const modelPathMachine = createMachine({
 modelPathMachine.subscribe(() => {
   storageItem.value = modelPathMachine.get().value;
 });
+
+window.setModelPath = (value: string) => {
+  modelPathMachine.get().actions.set(value);
+};
