@@ -22,6 +22,7 @@ export const EditorView = React.forwardRef(
       const monacoEditor = Monaco.editor.create(containerRef.current!, {
         contextmenu: false,
         fontSize: 16,
+        lineNumbers: `off`,
         minimap: { enabled: false },
         model: Monaco.editor.createModel(initialContentRef.current, `markdown`),
         scrollbar: { vertical: `hidden`, horizontal: `hidden`, handleMouseWheel: false },
